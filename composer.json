@@ -1,0 +1,15 @@
+{
+    "name": " fruitstudios/linkit",
+    "description": "One link field to replace them all, a multi-purpose link fieldtype for Craft CMS.",
+    "homepage": "https://github.com/onedesign/LinkIt",
+    "type": "craft-plugin",
+    "keywords": ["craft","plugin"],
+    "license": "MIT",
+    "authors": [{
+        "name": "Sam Hibberd",
+        "homepage": "http://fruitstudios.co.uk"
+  }],
+    "require": {
+        "composer/installers": "~1.0"
+    }
+}
