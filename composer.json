@@ -1,5 +1,5 @@
 {
-    "name": "fruitstudios/linkit",
+    "name": "fruitstudios/fruitlinkit",
     "description": "One link field to replace them all, a multi-purpose link fieldtype for Craft CMS.",
     "homepage": "https://github.com/onedesign/LinkIt",
     "type": "craft-plugin",
