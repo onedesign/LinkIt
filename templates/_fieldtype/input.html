@@ -1,15 +1,18 @@
 {% import "_includes/forms" as forms %}
 
-{% set type = isSingleType ? isSingleType : ( value.type is defined and value.type ? value.type : null) %}
+{% set singleType = types|length == 1 ? types[0] : null %}
+{% set type = singleType ? singleType : ( value.type is defined and value.type ? value.type : null) %}
 
-<div class="linkit">
+<div id="{{ name }}" class="fruit-field fruitlinkit">
 
-	<input type="hidden" name="{{ name }}" value="" />
-	
-	{% if isSingleType %}
+	{# Type #}
+	{% if singleType %}
+
 		<input type="hidden" id="{{ name }}Type" name="{{ name }}[type]" value="{{ type }}" />
+
 	{% else %}
-		<div class="linkit-type">
+
+		<div class="fruitlinkit-type">
 		{{ forms.selectField({
 			id: name~'-Type',
 			class: name~'-Type',
@@ -17,90 +20,115 @@
 			options: types,
 			value: type ? type
 		}) }}
-		</div>	
-		<div class="linkit-options{{ type is not defined or type == '' ? ' hidden' }}">
+		</div>
+
 	{% endif %}
-	
-	{% if types.email is defined %}
-		<div class="linkit-type-option linkit-email{{ type != 'email' ? ' hidden' }}">
+
+	{# Options #}
+	<div class="fruitlinkit-options{{ type == '' ? ' hidden' }}">
+
+		{% if types.email is defined %}
+		<div class="fruitlinkit-option fruitlinkit-email{{ type != 'email' ? ' hidden' }}">
 			{{ forms.textField({
 				id: name~'Email',
 				class: name~'Email',
 				name: name~'[email]',
 				placeholder: 'Email Address',
-				value: value.email is defined ? value.email
+				value: type == 'email' ? value.value
 			}) }}
 		</div>
-	{% endif %}
-		
-	{% if types.tel is defined %}
-		<div class="linkit-type-option linkit-tel{{ type != 'tel' ? ' hidden' }}">
+		{% endif %}
+
+		{% if types.tel is defined %}
+		<div class="fruitlinkit-option fruitlinkit-tel{{ type != 'tel' ? ' hidden' }}">
 			{{ forms.textField({
 				id: name~'Tel',
 				class: name~'Tel',
 				name: name~'[tel]',
 				placeholder: 'Telephone Number',
-				value: value.tel is defined ? value.tel
+				value: type == 'tel' ? value.value
 			}) }}
 		</div>
-	{% endif %}
-		
-	{% if types.custom is defined %}
-		<div class="linkit-type-option linkit-custom{{ type != 'custom' ? ' hidden' }}">
+		{% endif %}
+
+		{% if types.custom is defined %}
+		<div class="fruitlinkit-option fruitlinkit-custom{{ type != 'custom' ? ' hidden' }}">
 			{{ forms.textField({
 				id: name~'Custom',
 				class: name~'Custom',
 				name: name~'[custom]',
 				placeholder: 'Custom URL',
-				value: value.custom is defined ? value.custom
+				value: type == 'custom' ? value.value
 			}) }}
 		</div>
-	{% endif %}
-			
-	{% if types.entry is defined %}
-		<div class="linkit-type-option linkit-entry{{ type != 'entry' ? ' hidden' }}">
-			{% include "linkit/_fieldtype/inputs/entry" with entryVariables only %}
-		</div>
-	{% endif %}
-		
-	{% if types.asset is defined %}
-		<div class="linkit-type-option linkit-asset{{ type != 'asset' ? ' hidden' }}">
-			{% include "linkit/_fieldtype/inputs/asset" with assetVariables only %}
-		</div>
-	{% endif %}
+		{% endif %}
 
-	{% if types.category is defined %}
-		<div class="linkit-type-option linkit-category{{ type != 'category' ? ' hidden' }}">
-			{% include "linkit/_fieldtype/inputs/category" with categoryVariables only %}
+		{% if types.entry is defined %}
+		<div class="fruitlinkit-option fruitlinkit-entry{{ type != 'entry' ? ' hidden' }}">
+			{{ forms.elementSelectField({
+				id: name~'Entry',
+				class: name~'Entry',
+				name: name~'[entry]',
+			}|merge(elementSelectSettings.entry)) }}
 		</div>
-	{% endif %}
+		{% endif %}
 
-	{% if settings.text %}
-		<div class="linkit-text">
-			{{ forms.textField({
-				id: name~'Text',
-				class: name~'Text',
-				name: name~'[text]',
-				placeholder: settings.defaultText == '' ? 'Custom Link Text' : settings.defaultText,
-				value: value.text is defined ? value.text
-			}) }}
+		{% if types.asset is defined %}
+		<div class="fruitlinkit-option fruitlinkit-asset{{ type != 'asset' ? ' hidden' }}">
+			{{ forms.elementSelectField({
+				id: name~'Asset',
+				class: name~'Asset',
+				name: name~'[asset]',
+			}|merge(elementSelectSettings.asset)) }}
 		</div>
-	{% endif %}
-		
-	{% if settings.target %}
-		<div class="linkit-target">
-			{{ forms.checkboxField({
-				id: name~'Target',
-				class: name~'Target',
-				name: name~'[target]',
-				label: 'Open link in new window?',
-				checked: value.target is defined ? value.target
-			}) }}
-		</div>
-	{% endif %}
+		{% endif %}
 
-	{% if not isSingleType %}
+		{% if types.category is defined %}
+		<div class="fruitlinkit-option fruitlinkit-category{{ type != 'category' ? ' hidden' }}">
+			{{ forms.elementSelectField({
+				id: name~'Category',
+				class: name~'Category',
+				name: name~'[category]',
+			}|merge(elementSelectSettings.category)) }}
+		</div>
+		{% endif %}
+
+	</div>
+
+	{# Text & Target #}
+	{% if settings.allowCustomText or settings.allowTarget %}
+	<div class="fruitlinkit-settings{{ type == '' ? ' hidden' }}">
+
+		{% if settings.allowCustomText %}
+
+			<div class="fruit-field-column fruitlinkit-text">
+				{{ forms.textField({
+					id: name~'CustomText',
+					class: name~'CustomText',
+					name: name~'[customText]',
+					placeholder: settings.defaultText == '' ? 'Custom Link Text' : settings.defaultText,
+					value: value.customText is defined and value.customText ? value.customText
+				}) }}
+			</div>
+
+		{% endif %}
+
+		{% if settings.allowTarget %}
+
+			<div class="fruit-field-column fruitlinkit-target">
+				{{ forms.checkboxField({
+					id: name~'Target',
+					class: name~'Target',
+					name: name~'[target]',
+					value: '_blank',
+					label: 'Open link in new window?',
+					checked: value.target is defined and value.target == '_blank' ? true : null
+				}) }}
+			</div>
+
+		{% endif %}
+
 	</div>
 	{% endif %}
-	
+
 </div>
